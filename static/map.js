@@ -54,7 +54,7 @@ const HIDDEN_GROUPS_KEY = "infra-map:hidden-groups";
 /* -------- load & render -------- */
 
 async function loadConfig() {
-  const res = await fetch("/api/config");
+  const res = await fetch("api/config");
   cfg = await res.json();
   pollInterval = cfg.poll_interval || 30;
   servicesById = new Map(Object.entries(cfg.services));
@@ -183,7 +183,7 @@ async function refresh() {
   if (refreshing) return;
   refreshing = true;
   try {
-    const res = await fetch("/api/probe", { cache: "no-store" });
+    const res = await fetch("api/probe", { cache: "no-store" });
     const payload = await res.json();
     latestResults = payload.results;
     applyResults();

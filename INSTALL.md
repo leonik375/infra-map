@@ -67,7 +67,9 @@ curl -s http://127.0.0.1:8088/api/config | jq '.edge_groups'
 
 ## Reverse proxy (nginx example)
 
-The service binds `127.0.0.1:8088` — front it with nginx (or your reverse proxy of choice):
+The service binds `127.0.0.1:8088` — front it with nginx (or your reverse proxy of choice).
+
+### At the site root — `https://map.example.com/`
 
 ```nginx
 server {
@@ -83,6 +85,28 @@ server {
 
     listen 443 ssl;
     # ... TLS bits
+}
+```
+
+### Under a subpath — `https://example.com/map/`
+
+The frontend uses relative URLs, so no app-side config is needed — just strip the prefix in nginx (trailing slashes on both sides):
+
+```nginx
+server {
+    server_name example.com;
+
+    location = /map { return 301 /map/; }   # /map → /map/ (so relative asset URLs resolve correctly)
+
+    location /map/ {
+        proxy_pass http://127.0.0.1:8088/;  # trailing "/" strips the /map/ prefix
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    listen 443 ssl;
 }
 ```
 
