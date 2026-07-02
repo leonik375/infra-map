@@ -1,0 +1,7 @@
+services.yaml
+.venv/
+__pycache__/
+*.pyc
+.idea/
+*.log
+

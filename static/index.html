@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Infrastructure Map</title>
+  <link rel="stylesheet" href="/static/map.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <span class="dot dot-up"></span>
+      <h1>Infrastructure Map</h1>
+    </div>
+    <div class="meta">
+      <div id="edge-filters" class="edge-filters"></div>
+      <span class="sep">·</span>
+      <span id="last-updated">loading…</span>
+      <span class="sep">·</span>
+      <span>next check in <span id="countdown">–</span>s</span>
+      <span class="sep">·</span>
+      <button id="refresh-now" type="button">refresh now</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <svg id="edges" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr-up"       markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L6,3 z" fill="#3fb950"/>
+        </marker>
+        <marker id="arr-degraded" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L6,3 z" fill="#d29922"/>
+        </marker>
+        <marker id="arr-down"     markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L6,3 z" fill="#f85149"/>
+        </marker>
+        <marker id="arr-unknown"  markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L6,3 z" fill="#6e7681"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <div id="regions"></div>
+  </div>
+
+  <aside id="details" class="details hidden">
+    <button class="details-close" type="button" aria-label="close">×</button>
+    <div class="details-body"></div>
+  </aside>
+
+  <template id="region-template">
+    <section class="region" data-region-id="">
+      <header class="region-head">
+        <span class="region-label"></span>
+      </header>
+      <div class="region-body"></div>
+    </section>
+  </template>
+
+  <template id="server-template">
+    <div class="server-block" data-server-id="">
+      <header class="server-head">
+        <span class="server-label"></span>
+        <span class="server-ip"></span>
+        <span class="server-kind"></span>
+      </header>
+      <div class="server-body"></div>
+    </div>
+  </template>
+
+  <template id="node-template">
+    <article class="node" data-service-id="" data-status="unknown">
+      <span class="status-dot"></span>
+      <div class="node-body">
+        <div class="node-label"></div>
+        <div class="node-host"></div>
+      </div>
+      <div class="node-chips">
+        <span class="env-chip" hidden></span>
+        <span class="version-chip" hidden></span>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/map.js" defer></script>
+</body>
+</html>

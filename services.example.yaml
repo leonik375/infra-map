@@ -1,0 +1,118 @@
+# Infrastructure map — topology config.
+#
+# Structure:
+#   regions.<region_id>
+#     label     — human-friendly label
+#     row       — "top" (external-providers strip) or "main" (default; geographic map row)
+#     instances.<instance_id>          — a physical/virtual machine
+#       kind, provider, ip
+#       services.<service_id>
+#         label, env
+#         version_url, health_url, http_url, http_ok_statuses, tcp
+#         depends_on:                   — data-flow relations from this service
+#           <target_service_id>: "edge label"
+#           <target_service_id>: {label: "...", group: <edge_group_id>}   # explicit group override
+#     services.<service_id>            — services without a dedicated instance (loose)
+#
+# TCP host derives from URL; ICMP uses instance.ip (fallback: URL host).
+# All colours/widths/layout are decided by the frontend.
+
+poll_interval: 30
+cache_ttl: 25
+
+listen:
+  host: 127.0.0.1
+  port: 8088
+
+# Edge groups drive the filter toggles in the UI. Group is auto-inferred per edge:
+#   - source region "clients" → app
+#   - target region row=top    → external
+#   - otherwise                → internal
+# Override per edge with dict form: `target: {label: "...", group: <id>}`.
+# Add a new group here + reference it from an edge override to extend.
+edge_groups:
+  app:      { label: "App" }
+  internal: { label: "Internal" }
+  external: { label: "External" }
+
+regions:
+
+  clients:
+    label: "Mobile Apps"
+    row: top
+    services:
+      app-prod:
+        label: "Example App"
+        env: prod
+        depends_on:
+          api-prod: "API"
+
+  stripe:
+    label: "Stripe"
+    row: top
+    services:
+      stripe-api:
+        label: "Stripe API"
+        env: external
+        http_url: https://api.stripe.com/
+        http_ok_statuses: [200, 301, 302, 400, 401, 403, 404, 405]
+
+  smtp-provider:
+    label: "SMTP"
+    row: top
+    services:
+      smtp:
+        label: "SMTP relay"
+        env: external
+        tcp: smtp.example.com:465
+
+  us-east:
+    label: "US East · Provider X"
+    instances:
+      prod:
+        kind: dedicated-server
+        provider: ProviderX
+        ip: 203.0.113.10
+        services:
+          api-prod:
+            label: api
+            env: prod
+            version_url: https://api.example.com/version
+            depends_on:
+              worker-prod: "job queue"
+              db-prod:     "reads/writes"
+              stripe-api:  "payments"
+              smtp:        "email"
+          worker-prod:
+            label: worker
+            env: prod
+            health_url: https://worker.example.com/health
+          db-prod:
+            label: postgres
+            env: prod
+            tcp: db.internal.example.com:5432
+
+  eu-west:
+    label: "EU West · Provider Y"
+    instances:
+      staging:
+        kind: VPS
+        provider: ProviderY
+        ip: 203.0.113.20
+        services:
+          api-staging:
+            label: api
+            env: staging
+            version_url: https://api-staging.example.com/version
+            depends_on:
+              db-staging: "reads/writes"
+          db-staging:
+            label: postgres
+            env: staging
+            tcp: db-staging.internal.example.com:5432
+    # Loose services (no dedicated instance yet).
+    services:
+      lambda-func:
+        label: "Serverless fn"
+        env: staging
+        http_url: https://fn.example.com/

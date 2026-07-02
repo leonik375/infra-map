@@ -1,0 +1,24 @@
+[Unit]
+Description=Infrastructure Map
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=infra-map
+Group=infra-map
+WorkingDirectory=/opt/infra-map
+Environment=PATH=/opt/infra-map/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/opt/infra-map/venv/bin/python -m app
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=
+
+[Install]
+WantedBy=multi-user.target
