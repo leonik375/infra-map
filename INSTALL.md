@@ -52,7 +52,7 @@ sudo -u infra-map python3 -m venv /opt/infra-map/venv
 sudo -u infra-map /opt/infra-map/venv/bin/pip install -r /opt/infra-map/requirements.txt
 
 # 4. install systemd unit
-sudo cp /opt/infra-map/infra-map.service /etc/systemd/system/
+sudo cp /opt/infra-map/install/infra-map.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now infra-map
 sudo systemctl status infra-map
